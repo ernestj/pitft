@@ -528,6 +528,16 @@ config SRAM
 	  the genalloc API. It is supposed to be used for small on-chip SRAM
 	  areas found on many SoCs.
 
+config RPI_PWM
+	tristate "Raspberry Pi PWM driver"
+	depends on MACH_BCM2708
+	default m
+	help
+	 The Raspberry Pi has a single PWM pin broken out on pin 12 of its
+	 expansion port.  This driver will turn that pin from a GPIO into a
+	 PWM, and will export a sysfs directory, /sys/devices/platform/pwm,
+	 to allow for control over the PWM output.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

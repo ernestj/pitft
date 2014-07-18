@@ -608,6 +608,11 @@ static struct platform_device bcm2835_thermal_device = {
 	.name = "bcm2835_thermal",
 };
 
+static struct platform_device bcm2708_pwm_device = {
+	.name = "bcm2708_pwm",
+	.id = 0,
+};
+
 #ifdef CONFIG_SND_BCM2708_SOC_I2S_MODULE
 static struct resource bcm2708_i2s_resources[] = {
 	{
@@ -1075,6 +1080,8 @@ void __init bcm2708_init(void)
 	bcm_register_device(&bcm2708_spi_device);
 	bcm_register_device(&bcm2708_bsc0_device);
 	bcm_register_device(&bcm2708_bsc1_device);
+
+	bcm_register_device(&bcm2708_pwm_device);
 
 	bcm_register_device(&bcm2835_hwmon_device);
 	bcm_register_device(&bcm2835_thermal_device);

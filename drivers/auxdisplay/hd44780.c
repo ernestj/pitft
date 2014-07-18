@@ -336,49 +336,6 @@ static void hd44780_4bit_init(struct hd44780 *lcd)
 }
 
 /* ------------------ sysfs hooks BEGIN ------------------------ */
-#if 0
-static ssize_t mcp23017_show(struct device *dev, struct device_attribute *attr,
-			    char *buf)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct mcp23017_chip *chip = i2c_get_clientdata(client);
-
-	struct sensor_device_attribute *	psa	= to_sensor_dev_attr(attr);
-	uint16_t reg_val;
-	int ret, reg_offset = 0;
-
-	reg_offset = (psa->index) >> 1;
-
-	/* reading allowed from these registers */
-	if(
-		reg_offset != MCP_GPIO &&
-		reg_offset != MCP_OLAT &&
-		reg_offset != MCP_IODIR &&
-		reg_offset != MCP_GPINTEN &&
-		reg_offset != MCP_GPPU
-	)
-		return -EINVAL;
-
-	mutex_lock(&chip->i2c_lock);
-	ret = mcp23017_read_reg(chip, reg_offset, &reg_val);
-	mutex_unlock(&chip->i2c_lock);
-	if (ret < 0) {
-		/* NOTE:  diagnostic already emitted; that's all we should
-		 * do unless gpio_*_value_cansleep() calls become different
-		 * from their nonsleeping siblings (and report faults).
-		 */
-		return ret;
-	}
-
-	return sprintf(buf, "0x%02x\n", (
-			(psa->index & 0x1)
-			? ((reg_val & 0xff00) >> 8)
-			:  (reg_val & 0x00ff)
-		)
-	);
-}
-#endif
-
 static ssize_t hd44780_print(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t count)
 {

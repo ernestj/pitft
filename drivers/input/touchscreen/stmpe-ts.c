@@ -78,6 +78,7 @@ struct stmpe_touch {
 	u8 settling;
 	u8 fraction_z;
 	u8 i_drive;
+	u8 touch_active;	
 };
 
 static int __stmpe_reset_fifo(struct stmpe *stmpe)
@@ -119,8 +120,9 @@ static void stmpe_work(struct work_struct *work)
 	/* reset the FIFO before we report release event */
 	__stmpe_reset_fifo(ts->stmpe);
 
-	input_report_abs(ts->idev, ABS_PRESSURE, 0);
+	ts->touch_active = 0;
 	input_report_key(ts->idev, BTN_TOUCH, 0);
+	input_report_abs(ts->idev, ABS_PRESSURE, 0);
 	input_sync(ts->idev);
 }
 
@@ -151,11 +153,17 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
 	y = ((data_set[1] & 0xf) << 8) | data_set[2];
 	z = data_set[3];
 
-	input_report_abs(ts->idev, ABS_X, x);
-	input_report_abs(ts->idev, ABS_Y, y);
-	input_report_abs(ts->idev, ABS_PRESSURE, z);
-	input_report_key(ts->idev, BTN_TOUCH, 1);
-	input_sync(ts->idev);
+	/* Sometimes, the chip reports values of all zeroes.  Ignore these. */
+	if (x && y && z) {
+		input_report_abs(ts->idev, ABS_X, x);
+		input_report_abs(ts->idev, ABS_Y, y);
+		input_report_abs(ts->idev, ABS_PRESSURE, z);
+		if (!ts->touch_active) {
+			ts->touch_active = 1;
+			input_report_key(ts->idev, BTN_TOUCH, 1);
+		}		
+		input_sync(ts->idev);
+	}
 
        /* flush the FIFO after we have read out our values. */
 	__stmpe_reset_fifo(ts->stmpe);
